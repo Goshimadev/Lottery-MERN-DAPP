@@ -8,6 +8,9 @@ const {
 const path = require('path');
 const publicPath = path.join(__dirname, './public');
 const paypal = require('paypal-rest-sdk');
+const session = require('express-session');
+
+app.use(session({ secret: 'my web app', cookie: { maxAge: 60000 } }));
 
 // handling all the parsing
 app.use(bodyParser.json());
@@ -38,6 +41,7 @@ app.post('/post_info', async (req, res) => {
     amount: fee_amount,
     email: email,
   });
+  req.session.paypal_amount = amount;
 
   var create_payment_json = {
     intent: 'sale',
@@ -97,7 +101,7 @@ app.get('/success', (req, res) => {
       {
         amount: {
           currency: 'USD',
-          total: 100,
+          total: req.session.paypal_amount,
         },
       },
     ],
