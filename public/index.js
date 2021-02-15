@@ -19,7 +19,8 @@ class App extends React.Component {
       amount: this.state.amount,
       email: this.state.email,
     });
-    console.log(response);
+    window.open(response.data, '_blank');
+    console.log('opening new tab', response.data);
   };
   render() {
     return (
