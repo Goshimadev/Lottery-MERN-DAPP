@@ -126,6 +126,51 @@ app.get('/get_total_amount', async (req, res) => {
   res.send(result);
 });
 
+app.get('/pick_winner', async (req, res) => {
+  var result = await get_total_amount();
+  var total_amount = result[0].total_amount;
+  req.session.paypal_amount = total_amount;
+
+  // Placeholder for picking the winner,
+  // 1) We need to write a query to get a list of all the participants
+  // 2) We need to pick a winner
+
+  // Create paypal payment
+  var create_payment_json = {
+    intent: 'sale',
+    payer: {
+      payment_method: 'paypal',
+    },
+    redirect_urls: {
+      return_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+    },
+    transactions: [
+      {
+        item_list: {
+          items: [
+            {
+              name: 'Lottery',
+              sku: 'Funding',
+              price: req.session.paypal_amount,
+              currency: 'USD',
+              quantity: 1,
+            },
+          ],
+        },
+        amount: {
+          currency: 'USD',
+          total: req.session.paypal_amount,
+        },
+        payee: {
+          email: winner_email,
+        },
+        description: 'Paying the winner of the lottery application',
+      },
+    ],
+  };
+});
+
 app.listen(3000, () => {
   console.log('server is running on port 3000');
 });
