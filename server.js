@@ -5,6 +5,7 @@ const {
   save_user_information,
   get_total_amount,
   get_list_of_participants,
+  delete_users,
 } = require('./models/server_db');
 const path = require('path');
 const publicPath = path.join(__dirname, './public');
