@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const {
   save_user_information,
   get_total_amount,
+  get_list_of_participants,
 } = require('./models/server_db');
 const path = require('path');
 const publicPath = path.join(__dirname, './public');
@@ -134,6 +135,15 @@ app.get('/pick_winner', async (req, res) => {
   // Placeholder for picking the winner,
   // 1) We need to write a query to get a list of all the participants
   // 2) We need to pick a winner
+  var list_of_participants = await get_list_of_participants();
+  list_of_participants = JSON.parse(JSON.stringify(list_of_participants));
+  var email_array = [];
+  list_of_participants.forEach(function (element) {
+    email_array.push(element.email);
+  });
+  console.log(email_array);
+  var winner = email_array[Math.floor(Math.random() * email_array.length)];
+  return;
 
   // Create paypal payment
   var create_payment_json = {
@@ -169,6 +179,20 @@ app.get('/pick_winner', async (req, res) => {
       },
     ],
   };
+
+  paypal.payment.create(create_payment_json, function (error, payment) {
+    if (error) {
+      throw error;
+    } else {
+      console.log('Create Payment Response');
+      console.log(payment);
+      for (var i = 0; i < payment.links.length; i++) {
+        if (payment.links[i].rel == 'approval_url') {
+          return res.send(payment.links[i].href);
+        }
+      }
+    }
+  });
 });
 
 app.listen(3000, () => {
